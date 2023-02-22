@@ -1,1 +1,96 @@
-H
+#define _CRT_SECURE_NO_WARNINGS
+#include <conio.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void writeNumbers(char** argv[], int argc)
+{
+    FILE* pFile;
+    if ((pFile = fopen(argv[1], "w+")) == NULL) {
+        perror("Failed to open file");
+        return 1;
+    }
+    int numbers;
+    for (int i = 0; i < argc; i++)
+    {
+        while (scanf("%d", &numbers) != 1 || getchar() != '\n') {
+            printf("Incorrect input. Try again: ");
+            rewind(stdin);
+        }
+
+        fwrite(&numbers, sizeof(int), 1, pFile);
+
+    }
+    fclose(pFile);
+}
+
+void printFile(char** argv[])
+{
+    FILE* pFile;
+    if ((pFile = fopen(argv[1], "r")) == NULL) {
+        perror("Failed to open file");
+        return 1;
+    }
+    printf("File content:\n");
+    int value;
+    while (0 != fread(&value, sizeof(int), 1, pFile)) {
+        printf("%d ", value);
+    }
+    printf("\n");
+    fclose(pFile);
+    return 0;
+}
+
+void findNumberMax(char** argv[], int argc)
+{
+    FILE* pFile;
+    if ((pFile = fopen(argv[1], "r")) == NULL) {
+        perror("Failed to open file");
+        return 1;
+    }
+    int k = -9999, max, num = 0;
+    for (int i = 0; i < argc; i++)
+    {
+        fread(&max, sizeof(int), 1, pFile);
+        if (max > k)
+        {
+            k = max;
+        }
+    }
+    fseek(pFile, 0, 0);
+    for (int i = 0; i < argc; i++)
+    {
+        fread(&max, sizeof(int), 1, pFile);
+        if (max == k)
+        {
+            num++;
+        }
+    }
+    printf("Number of repetitions: %d\n", num);
+    printf("Maximum number: %d", max);
+    fclose(pFile);
+}
+
+int checkInput(int argc)
+{
+    while (scanf_s("%d", &argc) != 1 || getchar() != '\n' || argc < 1) {
+        printf("Incorrect input. Try again: ");
+        rewind(stdin);
+    }
+
+    return argc;
+
+}
+
+
+int main(int argc, char** argv)
+{
+    FILE* pFile;
+    printf("Enter number of numbers: ");
+    int n = checkInput(&n);
+    writeNumbers(argv, n);
+    printFile(argv);
+    findNumberMax(argv, n);
+
+    return 0;
+}
